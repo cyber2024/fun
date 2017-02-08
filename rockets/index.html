@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Rockets</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <h1>
+      Rockets!
+    </h1>
+    <div class="canvasContainer">
+      <canvas id="myCanvas"></canvas>
+
+
+      <div class="info">
+
+        <p>Status: <span id="status">Waiting to launch</span>  </p><button id="launch">LAUNCH</button>
+        <p>Generation: <span id="gen">0</span></p>
+        <p>Highest So Far: <span id="highest">na</span></p>
+        <p>Highest Ever In This Run: <span id="highestever">na</span></p>
+        <p>Rocket count: <span id="rocketcount">50</span>  </p><input id="rocketrange" type="range" min="1" max="100"/>
+        <p>Launch:SPACE</P>
+        <p>Reset:ESC</p>
+        <p>More-Rockets:Keypad(9)</p>
+        <p>Less-Rockets:Keypad(3)</p>
+        <p>Breed-A-New-Generation:R</p>
+      </div>
+    </div>
+    <script src="scripts.js" charset="utf-8"></script>
+  </body>
+</html>

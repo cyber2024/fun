@@ -1,0 +1,32 @@
+canvas{
+border:1px solid black;
+display: inline-block;
+margin:0;
+padding:0;
+}
+body{
+text-align: center;
+}
+p{
+
+}
+.myDiv{
+position: relative;
+top:0;
+display: inline-block;
+border: 1px solid black;
+margin:0;
+padding:0;
+}
+.canvasContainer{
+position:relativerelative;
+text-align: center;
+vertical-align: top;
+}
+.info{
+display: inline-block;
+position: relative;
+top: -400px;
+left:-0;
+width:300px;
+}
