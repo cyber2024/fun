@@ -15,6 +15,11 @@ var rocketCount = 50;
 var rcount = document.querySelector("#rocketcount")
 var rocketRange = document.querySelector("#rocketrange");
 var launch = document.querySelector("#launch");
+var bg = new Image();
+bg.onload = function(){
+  context.drawImage(bg,0,0);
+}
+bg.src = "http://localhost:8080/rockets/bg.jpg";
 launch.addEventListener('click',function(){
   launch = true;
 })
@@ -80,7 +85,9 @@ tick();
 reset(rocketCount);
 
 function drawScene(elapsed){
-  context.clearRect(0,0,canvas.width, canvas.height);
+  // context.clearRect(0,0,canvas.width, canvas.height);
+
+    context.drawImage(bg,0,0);
   for(var i =0; i < rockets.length; i++){
     rockets[i].draw(context, elapsed);
   }
@@ -204,9 +211,11 @@ function Rocket(reuseDNA){
       //body
       context.beginPath();
       context.translate(this.mov.x, this.mov.y);
-      context.fillStyle = "black";
+      context.lineWidth = 10;
+      context.fillStyle = "#3d3d3d";
       context.rotate(this.mov.rot * Math.PI / 180);
       context.rect(-this.dim.w/2, -this.dim.h/2, this.dim.w, this.dim.h);
+
       context.fill();
 
         //cone
