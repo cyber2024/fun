@@ -227,7 +227,10 @@ function Rocket(reuseDNA){
         this.orientation = orientation;
         this.delaywaited = 0;
         this.durationburned =0;
-        this.color = {r: 255, g: 155, b: 0};
+        var r = Math.floor(Math.random()*255);
+        var g = Math.floor(Math.random()*255);
+        var b = Math.floor(Math.random()*255);
+        this.color = {r: r, g: g, b: b};
     }
     this.firing = false;
   }
