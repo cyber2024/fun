@@ -16,10 +16,11 @@ var rcount = document.querySelector("#rocketcount")
 var rocketRange = document.querySelector("#rocketrange");
 var launch = document.querySelector("#launch");
 var bg = new Image();
+
 bg.onload = function(){
   context.drawImage(bg,0,0);
 }
-bg.src = "http://localhost:8080/rockets/bg.jpg";
+bg.src = window.location.href + '/bg.jpg';
 launch.addEventListener('click',function(){
   launch = true;
 })
