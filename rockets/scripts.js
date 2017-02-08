@@ -146,42 +146,52 @@ function Rocket(reuseDNA){
     rotSpeed: 0,
     highest: 0
   }
-  function Booster(size, prevbooster){
+  function Booster(size, prevbooster, orientation){
     var l = 4;
     if(prevbooster){
-      this.delay = Math.random()*300 - 50 + ( l*prevbooster.delay + (Math.random()*1000))/(l+1);
-      this.power = Math.random()*300 - 50 + ( l*prevbooster.power + (Math.random()*500 + 150)*size)/(l+1);
-      this.duration = Math.random()*300 - 50 + ( l*prevbooster.duration + Math.random() * 500+150)/(l+1);
+      this.delay = Math.random()*100 - 50 + prevbooster.delay;
+      this.power = Math.random()*100 - 50 + prevbooster.power;
+      this.duration = Math.random()*100 - 50 + prevbooster.duration ;
+      this.orientation = (prevbooster.orientation + (Math.random()*5-2.5));
       this.delaywaited = 0;
       this.durationburned =0;
+      var r = parseInt(prevbooster.color.r + Math.random()*30 - 15);
+      var g = parseInt(prevbooster.color.g + Math.random()*30 - 15);
+      var b = parseInt(prevbooster.color.b + Math.random()*30 - 15);
+      r = r > 255? 255 : r;
+      g = g>255?255:g;
+      b = b>255?255:b;
+      this.color = {r,g,b};
     } else {
         this.delay = (Math.random()*1000);
         this.power =  (Math.random()*300 + 600)*size;
         this.duration =  Math.random() * 500+500;
+        this.orientation = orientation;
         this.delaywaited = 0;
         this.durationburned =0;
+        this.color = {r: 255, g: 155, b: 0};
     }
     this.firing = false;
   }
   if(reuseDNA){
     this.dna = {
       booster: {
-        bottom: new Booster(25, reuseDNA.booster.bottom),
-        left: new Booster(10, reuseDNA.booster.left),
-        right: new Booster(10, reuseDNA.booster.right),
-        rotLeft: new Booster(1, reuseDNA.booster.rotLeft),
-        rotRight: new Booster(1, reuseDNA.booster.rotRight)
+        bottom: new Booster(25, reuseDNA.booster.bottom, 0),
+        left: new Booster(6, reuseDNA.booster.left, 90),
+        right: new Booster(6, reuseDNA.booster.right, -90),
+        rotLeft: new Booster(1, reuseDNA.booster.rotLeft, 90),
+        rotRight: new Booster(1, reuseDNA.booster.rotRight, -90)
       },
       fuel: 50
     };
   } else {
     this.dna = {
       booster: {
-        bottom: new Booster(25),
-        left: new Booster(10),
-        right: new Booster(10),
-        rotLeft: new Booster(1),
-        rotRight: new Booster(1)
+        bottom: new Booster(25, null,0),
+        left: new Booster(6, null,90),
+        right: new Booster(6, null,-90),
+        rotLeft: new Booster(1, null,90),
+        rotRight: new Booster(1, null,-90)
       },
       fuel: 50
     };
@@ -190,6 +200,8 @@ function Rocket(reuseDNA){
 
   this.draw = function(context, elapsed){
       context.save();
+
+      //body
       context.beginPath();
       context.translate(this.mov.x, this.mov.y);
       context.fillStyle = "black";
@@ -197,12 +209,14 @@ function Rocket(reuseDNA){
       context.rect(-this.dim.w/2, -this.dim.h/2, this.dim.w, this.dim.h);
       context.fill();
 
+        //cone
         context.beginPath();
         context.moveTo(-this.dim.w/2, -this.dim.h/2);
         context.lineTo(this.dim.w/2, -this.dim.h/2);
         context.lineTo(0, -this.dim.h/2-10);
         context.fill();
 
+        //fins
         context.beginPath();
         context.moveTo(-this.dim.w/2, this.dim.h/2);
         context.lineTo(-this.dim.w/2-5, this.dim.h/2);
@@ -215,36 +229,41 @@ function Rocket(reuseDNA){
         context.lineTo(this.dim.w/2, this.dim.h/2-5);
         context.fill();
 
+        //bottom booster
       if(this.dna.booster.bottom.firing){
         context.beginPath();
-        context.fillStyle = "orange";
+        var color = this.dna.booster.bottom.color;
+        context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(-this.dim.w/2, this.dim.h/2);
         context.lineTo(this.dim.w/2, this.dim.h/2);
-        context.lineTo(0, this.dim.h+10);
+        context.lineTo(-Math.sin(Math.PI*this.dna.booster.bottom.orientation/180)*20, this.dim.h+20);
         context.fill();
       }
 
       if(this.dna.booster.left.firing){
         context.beginPath();
-        context.fillStyle = "orange";
+        var color = this.dna.booster.bottom.color;
+        context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(-this.dim.w/2, -3);
         context.lineTo(-this.dim.w/2, +3);
-        context.lineTo(-this.dim.w/2-6, 0);
+        context.lineTo(-this.dim.w/2-Math.sin(-Math.PI*this.dna.booster.right.orientation/180)*12, +Math.cos(-Math.PI*this.dna.booster.left.orientation/180)*12);
         context.fill();
       }
 
       if(this.dna.booster.right.firing){
         context.beginPath();
-        context.fillStyle = "orange";
+        var color = this.dna.booster.bottom.color;
+        context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(this.dim.w/2, -3);
         context.lineTo(this.dim.w/2, +3);
-        context.lineTo(this.dim.w/2+6, 0);
+        context.lineTo(this.dim.w/2+Math.sin(-Math.PI*this.dna.booster.right.orientation/180)*12, Math.cos(Math.PI*this.dna.booster.right.orientation/180)*12);
         context.fill();
       }
 
       if(this.dna.booster.rotLeft.firing){
         context.beginPath();
-        context.fillStyle = "orange";
+        var color = this.dna.booster.bottom.color;
+        context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(-this.dim.w/2, -this.dim.h/2 + 2);
         context.lineTo(-this.dim.w/2, -this.dim.h/2 + 8);
         context.lineTo(-this.dim.w/2-6, -this.dim.h/2 + 5);
@@ -253,7 +272,8 @@ function Rocket(reuseDNA){
 
       if(this.dna.booster.rotRight.firing){
         context.beginPath();
-        context.fillStyle = "orange";
+        var color = this.dna.booster.bottom.color;
+        context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(this.dim.w/2, -this.dim.h/2 + 2);
         context.lineTo(this.dim.w/2, -this.dim.h/2 + 8);
         context.lineTo(this.dim.w/2+6, -this.dim.h/2 + 5);
@@ -263,17 +283,20 @@ function Rocket(reuseDNA){
   }
   this.update = function(elapsed){
     //bottom booster
+    this.mov.ay = 9800*elapsed/1000
     var {fuelUsed, accn} = firebooster(this.dna.booster.bottom, elapsed);
-    this.mov.ay = this.getYComponent(-accn,0);
-    this.mov.ax = this.getXComponent(accn,0);
+    this.mov.ay += this.getYComponent(-accn,this.dna.booster.bottom.orientation);
+    this.mov.ax = this.getXComponent(accn,this.dna.booster.bottom.orientation);
+    this.mov.rotSpeed += this.getRotComponent(accn,this.dna.booster.bottom.orientation)/10000;
+    this.mov.rot += this.mov.rotSpeed * elapsed;
 
     var {fuelUsed, accn} = firebooster(this.dna.booster.left, elapsed);
-    this.mov.ay += this.getYComponent(-accn +  elapsed * 980/1000,90);
-    this.mov.ax += this.getXComponent(accn,90);
+    this.mov.ay += this.getYComponent(-accn,this.dna.booster.left.orientation);
+    this.mov.ax += this.getXComponent(accn,this.dna.booster.left.orientation);
 
     var {fuelUsed, accn} = firebooster(this.dna.booster.right, elapsed);
-    this.mov.ay += this.getYComponent(-accn +  elapsed * 980/1000,-90);
-    this.mov.ax += this.getXComponent(accn,-90);
+    this.mov.ay += this.getYComponent(-accn,this.dna.booster.right.orientation);
+    this.mov.ax += this.getXComponent(accn,this.dna.booster.right.orientation);
 
     var {fuelUsed, accn} = firebooster(this.dna.booster.rotLeft, elapsed);
     this.mov.rotSpeed += accn * elapsed/100000;
@@ -283,7 +306,7 @@ function Rocket(reuseDNA){
     this.mov.rotSpeed -= accn * elapsed/100000;
     this.mov.rot += this.mov.rotSpeed * elapsed;
 
-    this.mov.vy += (this.mov.ay + 98)* elapsed/1000;
+    this.mov.vy += (this.mov.ay)* elapsed/1000;
     this.mov.vx += this.mov.ax * elapsed/1000;
     this.mov.y += this.mov.vy * elapsed/1000;
     this.mov.x += this.mov.vx * elapsed/1000;
@@ -302,6 +325,10 @@ function Rocket(reuseDNA){
 
   this.getYComponent = function(v, boosterOrientation){
     return (Math.cos(Math.PI * (this.mov.rot+boosterOrientation)/180) * v);
+  }
+  this.getRotComponent = function(v, boosterOrientation){
+    var vx = Math.sin(2*Math.PI * (boosterOrientation)/360) * v;
+    return vx;
   }
   this.getXComponent = function(v, boosterOrientation){
     var vx = Math.sin(2*Math.PI * (this.mov.rot+boosterOrientation)/360) * v;
