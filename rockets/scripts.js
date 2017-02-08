@@ -63,14 +63,23 @@ function keyUp(e){
 
 var rockets = [];
 
-function reset(no, dna){
-  if(!dna)
-  generation = 0;
+function reset(no, dnaPool){
   finished = false;
   launch = false;
   rockets = [];
-  for(var i =0; i < no; i++){
-    rockets.push(new Rocket(dna));
+  var tmp = new Rocket();
+  if(!dnaPool){
+    generation = 0;
+  }
+  while(rockets.length < no){
+    if(dnaPool){
+      var i0 = parseInt(Math.random()*rocketCount);
+      var i1 = parseInt(Math.random()*rocketCount);
+      rockets.push(new Rocket(tmp.Breed(dnaPool[i0],dnaPool[i1])));
+    } else {
+      console.log("no dnaPool");
+      rockets.push(new Rocket());
+    }
   }
   statusInfo.innerHTML = "Ready to Launch";
   gen.innerHTML = generation;
@@ -78,7 +87,26 @@ function reset(no, dna){
 
 function nextGen(){
     generation++;
-    reset(rocketCount,rockets[0].dna);
+    var matingPool = rockets.slice(0,20);
+    var dnaPool = [];
+    var sum = 0;
+    for(var i = 0; i < matingPool.length; i++){
+      sum += matingPool[i].mov.highest;
+    }
+    for(var i = 0; i < matingPool.length; i++){
+      matingPool[i].dnaCount = parseInt(rocketCount * matingPool[i].mov.highest / sum + matingPool.length - i);
+    }
+    sum = 0;
+    for(var i = 0; i < matingPool.length; i++){
+      sum += matingPool[i].dnaCount;
+    }
+    console.log(sum, rocketCount)
+    for(var i = 0; i < matingPool.length; i++){
+      for(var j = 0; j < matingPool[i].dnaCount; j++ ){
+        dnaPool.push(matingPool[i].dna);
+      }
+    }
+    reset(rocketCount,dnaPool);
     launch = true;
 }
 
@@ -154,13 +182,30 @@ function Rocket(reuseDNA){
     rotSpeed: 0,
     highest: 0
   }
+  this.Breed = function(r1,r2){
+    var rand = [];
+    var baby = {};
+    for(var i = 0; i < 3; i++){
+      rand[i] = Math.random()>=0.5;
+    }
+      var baby = {
+        booster: {
+          bottom: rand[0] ? r1.booster.bottom : r2.booster.bottom,
+          left: rand[1] ? r1.booster.left : r2.booster.left,
+          right: rand[1] ? r1.booster.right : r2.booster.right,
+          rotLeft: rand[2] ? r1.booster.rotLeft : r2.booster.rotLeft,
+          rotRight: rand[2] ? r1.booster.rotRight : r2.booster.rotRight
+        },
+      };
+      return baby;
+  }
   function Booster(size, prevbooster, orientation){
     var l = 4;
     if(prevbooster){
-      this.delay = Math.random()*100 - 50 + prevbooster.delay;
-      this.power = Math.random()*100 - 50 + prevbooster.power;
-      this.duration = Math.random()*100 - 50 + prevbooster.duration ;
-      this.orientation = (prevbooster.orientation + (Math.random()*5-2.5));
+      this.delay = Math.random()*300 - 150 + prevbooster.delay;
+      this.power = Math.random()*250 - 125 + prevbooster.power;
+      this.duration = Math.random()*250 - 125 + prevbooster.duration ;
+      this.orientation = (prevbooster.orientation + (Math.random()*15-7.5));
       this.delaywaited = 0;
       this.durationburned =0;
       var r = parseInt(prevbooster.color.r + Math.random()*30 - 15);
