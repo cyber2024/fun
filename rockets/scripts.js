@@ -1,6 +1,6 @@
 var canvas = document.querySelector("#myCanvas");
-canvas.width = 600;
-canvas.height = 800;
+canvas.width = 2000;
+canvas.height = 2000;
 var context = canvas.getContext("2d");
 var launch = false;
 var finished = false;
@@ -73,9 +73,11 @@ function reset(no, dnaPool){
   }
   while(rockets.length < no){
     if(dnaPool){
-      var i0 = parseInt(Math.random()*rocketCount);
-      var i1 = parseInt(Math.random()*rocketCount);
-      rockets.push(new Rocket(tmp.Breed(dnaPool[i0],dnaPool[i1])));
+      var i0 = Math.ceil(Math.random()*rocketCount);
+      var i1 = Math.ceil(Math.random()*rocketCount);
+
+      console.log(dnaPool.length, i0, dnaPool.length % i0, i1, dnaPool.length % i1)
+      rockets.push(new Rocket(tmp.Breed(dnaPool[(dnaPool.length -1)% i0],dnaPool[(dnaPool.length -1)% i1])));
     } else {
       console.log("no dnaPool");
       rockets.push(new Rocket());
@@ -87,14 +89,14 @@ function reset(no, dnaPool){
 
 function nextGen(){
     generation++;
-    var matingPool = rockets.slice(0,20);
+    var matingPool = rockets.slice(0,10);//rocketCount*.5);
     var dnaPool = [];
     var sum = 0;
     for(var i = 0; i < matingPool.length; i++){
       sum += matingPool[i].mov.highest;
     }
     for(var i = 0; i < matingPool.length; i++){
-      matingPool[i].dnaCount = parseInt(rocketCount * matingPool[i].mov.highest / sum + matingPool.length - i);
+      matingPool[i].dnaCount = parseInt(rocketCount * matingPool[i].mov.highest / sum );
     }
     sum = 0;
     for(var i = 0; i < matingPool.length; i++){
@@ -126,7 +128,7 @@ function updateScene(elapsed){
     var countFinished = 0;
     for(var i =0; i < rockets.length; i++){
       rockets[i].update(elapsed);
-      if(rockets[i].mov.y == 750 && rockets[i].dna.booster.bottom.durationburned >= rockets[i].dna.booster.bottom.duration && rockets[i].mov.vy == 0){
+      if(rockets[i].mov.y == canvas.height-50 && rockets[i].dna.booster.bottom.durationburned >= rockets[i].dna.booster.bottom.duration && rockets[i].mov.vy == 0){
         countFinished ++;
         if(countFinished == rockets.length){
           statusInfo.innerHTML = "All rockets have landed";
@@ -202,18 +204,21 @@ function Rocket(reuseDNA){
   function Booster(size, prevbooster, orientation){
     var l = 4;
     if(prevbooster){
-      this.delay = Math.random()*300 - 150 + prevbooster.delay;
-      this.power = Math.random()*250 - 125 + prevbooster.power;
-      this.duration = Math.random()*250 - 125 + prevbooster.duration ;
-      this.orientation = (prevbooster.orientation + (Math.random()*15-7.5));
+      this.delay = Math.random()*20 - 10 + prevbooster.delay;
+      this.power = Math.random()*100 - 50 + prevbooster.power;
+      this.duration = Math.random()*20 - 10 + prevbooster.duration ;
+      this.orientation = (prevbooster.orientation + (Math.random()*5-2.5));
       this.delaywaited = 0;
       this.durationburned =0;
-      var r = parseInt(prevbooster.color.r + Math.random()*30 - 15);
-      var g = parseInt(prevbooster.color.g + Math.random()*30 - 15);
-      var b = parseInt(prevbooster.color.b + Math.random()*30 - 15);
+      var r = parseInt(prevbooster.color.r + Math.random()*16 - 8);
+      var g = parseInt(prevbooster.color.g + Math.random()*16 - 8);
+      var b = parseInt(prevbooster.color.b + Math.random()*16 - 8);
       r = r > 255? 255 : r;
       g = g>255?255:g;
       b = b>255?255:b;
+      r = r < 0? 0 : r;
+      g = g< 0? 0:g;
+      b = b< 0? 0:b;
       this.color = {r,g,b};
     } else {
         this.delay = (Math.random()*1000);
@@ -297,7 +302,7 @@ function Rocket(reuseDNA){
 
       if(this.dna.booster.left.firing){
         context.beginPath();
-        var color = this.dna.booster.bottom.color;
+        var color = this.dna.booster.left.color;
         context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(-this.dim.w/2, -3);
         context.lineTo(-this.dim.w/2, +3);
@@ -307,7 +312,7 @@ function Rocket(reuseDNA){
 
       if(this.dna.booster.right.firing){
         context.beginPath();
-        var color = this.dna.booster.bottom.color;
+        var color = this.dna.booster.right.color;
         context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(this.dim.w/2, -3);
         context.lineTo(this.dim.w/2, +3);
@@ -317,7 +322,7 @@ function Rocket(reuseDNA){
 
       if(this.dna.booster.rotLeft.firing){
         context.beginPath();
-        var color = this.dna.booster.bottom.color;
+        var color = this.dna.booster.rotLeft.color;
         context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(-this.dim.w/2, -this.dim.h/2 + 2);
         context.lineTo(-this.dim.w/2, -this.dim.h/2 + 8);
@@ -327,7 +332,7 @@ function Rocket(reuseDNA){
 
       if(this.dna.booster.rotRight.firing){
         context.beginPath();
-        var color = this.dna.booster.bottom.color;
+        var color = this.dna.booster.rotRight.color;
         context.fillStyle = "rgba("+color.r+","+color.g+","+color.b+",1.0)";
         context.moveTo(this.dim.w/2, -this.dim.h/2 + 2);
         context.lineTo(this.dim.w/2, -this.dim.h/2 + 8);
